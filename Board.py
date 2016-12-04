@@ -20,31 +20,58 @@ class Board:
         print("move right")
 
     def moveUp(self):
-        for i in range(4):
-            closestIndex = self.findClosest( i, 0, "up")
-            if closestIndex != None:
-                if self.board[closestIndex][0] != self.board[i][0]:
-                    self.shift(i,0, "up")
-                else:
-                    self.board[i][0] = self.board[closestIndex][0] + self.board[i][0]
-                    self.board[closestIndex][0] = 0
-                    self.shift(i, 0, "up")
+        for j in range(4):
+            for i in range(4):
+                closestIndex = self.findClosest( i, j, "up")
+                if closestIndex != None:
+                    if self.board[closestIndex][j] != self.board[i][j]:
+                        self.shift(i,j, "up")
+                    else:
+                        self.board[i][j] = self.board[closestIndex][j] + self.board[i][j]
+                        self.board[closestIndex][j] = 0
+                        self.shift(i, j, "up")
 
+    def moveDown(self):
+        for j in range(4):
+            for i in range(3, -1, -1):
+                closestIndex = self.findClosest( i , j , "down")
+                if closestIndex != None:
+                    if self.board[closestIndex][j] != self.board[i][j]:
+                        self.shift(i,j,"down")
+                    else:
+                        self.board[i][j] = self.board[closestIndex][j] + self.board[i][j]
+                        self.board[closestIndex][j] = 0
+                        self.shift(i,j,"down")
+                    
 
     def shift(self, baseX, baseY, direction):
         if direction == "up":
             for i in range(baseX + 1 , len(self.board) - 1):
-                closestIndex = self.findClosest( i , 0 , "up" )
+                closestIndex = self.findClosest( i , baseY , "up" )
                 if closestIndex == None:
                     return
                 self.board[i][baseY] = self.board[closestIndex][baseY]
                 self.board[closestIndex][baseY] = 0
+                
+        elif direction == "down":
+            for i in range(baseX - 1 , -1, -1):
+                closestIndex = self.findClosest( i , baseY , "down")
+                if closestIndex == None:
+                    return
+                self.board[i][baseY] = self.board[closestIndex][baseY]
+                self.board[closestIndex][baseY] = 0
+                
             
     def findClosest(self,currentX ,currentY, direction):
         if direction == "up":
             for i in range(currentX + 1, len(self.board)):
                 if self.board[i][currentY] != 0:
                     return i
+        elif direction == "down":
+            for i in range(currentX - 1, -1 ,-1):
+                if self.board[i][currentY] != 0:
+                    return i
+                
 
         return None
 
@@ -54,10 +81,6 @@ class Board:
         for i in self.board:
             returnStr += str(i) + "\n"
         return returnStr
-
-
-    def moveDown(self):
-        print("move down")
 
 
 

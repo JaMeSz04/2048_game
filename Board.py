@@ -5,15 +5,13 @@ import random
 class Board:
     def __init__(self):
         self.khopi_attempt = 0
-        self.board = [[0,0,0,0] ,
-                      [0,0,0,0] ,
-                      [0,0,0,0] ,
-                      [0,0,0,0]]
+        self.board = [[2,0,0,0] ,
+                      [2,0,0,0] ,
+                      [2,0,0,0] ,
+                      [2,0,0,0]]
         startRow = random.choice([0,1,2,3])
         startColumn = random.choice([0,1,2,3])
-        self.board[startRow][startColumn] = 2
-
-
+        #self.board[startRow][startColumn] = 2
 
     def moveLeft(self):
         print("move left")
@@ -23,32 +21,47 @@ class Board:
 
     def moveUp(self):
         for i in range(4):
-            for j in range(4):
-                #case up is 0
-                if self.board[i][j] == 0 and self.board[i+1][j] != 0:
-                    self.board[i][j] = self.board[i+1][j]
-                    self.board[i+1][j] = 0
-                elif self.board[i][j] == self.board[i+1][j]:
-                    self.board[i][j] = self.board[i][j] + self.board[i+1][j]
-                    self.board[i+1][j] = 0
-                    #shift other box up
-                    for k in range(i + 1, 4):
-                        while True:
-                            if self.board[k + 1][j] != 0:
-                                self.board[k][j] = self.board[k+1][j]
-    def haveSame(self,currentRow,currentColumn,dir):
-        if dir == 'up':
-            for i in range(currentRow,4):
-                if currentX:
+            closestIndex = self.findClosest( i, 0, "up")
+            if closestIndex != None:
+                if self.board[closestIndex][0] != self.board[i][0]:
+                    self.shift(i,0, "up")
+                else:
+                    self.board[i][0] = self.board[closestIndex][0] + self.board[i][0]
+                    self.board[closestIndex][0] = 0
+                    self.shift(i, 0, "up")
 
 
+    def shift(self, baseX, baseY, direction):
+        if direction == "up":
+            for i in range(baseX + 1 , len(self.board) - 1):
+                closestIndex = self.findClosest( i , 0 , "up" )
+                if closestIndex == None:
+                    return
+                self.board[i][baseY] = self.board[closestIndex][baseY]
+                self.board[closestIndex][baseY] = 0
+            
+    def findClosest(self,currentX ,currentY, direction):
+        if direction == "up":
+            for i in range(currentX + 1, len(self.board)):
+                if self.board[i][currentY] != 0:
+                    return i
+
+        return None
 
 
+    def toString(self):
+        returnStr = ""
+        for i in self.board:
+            returnStr += str(i) + "\n"
+        return returnStr
 
-
-
-
-        print("move up")
 
     def moveDown(self):
         print("move down")
+
+
+
+a = Board()
+a.toString()
+#a.moveUp()
+a.toString()

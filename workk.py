@@ -6,10 +6,10 @@ class Board:
         self.board = [ [0,0,0,0],
                        [0,0,0,0],
                        [0,0,0,0],
-                       [0,0,0,0] ]
+                       [0,4,0,2] ]
         startRow = random.choice([0, 1, 2, 3])
         startColumn = random.choice([0, 1, 2, 3])
-        self.board[startRow][startColumn] = 2
+        #self.board[startRow][startColumn] = 2
         self.score = 0
 
     def up(self):
@@ -97,6 +97,7 @@ class Board:
                             addScore += board[i][j]
                             j += 1
                         else:
+
                             j += 1
                             break
         return board,addScore
@@ -106,7 +107,7 @@ class Board:
         addScore = 0
         for i in range(len(board)):
             j = len(board) - 1
-            while j >= 0:
+            while j > -1:
                 if j < 0:
                     j = 0
                 if j >= len(board):
@@ -128,6 +129,8 @@ class Board:
                             addScore += board[i][j]
                             j -= 1
                         else:
+                            board[i][j-1] = board[i][n]
+                            board[i][n] = 0
                             j -= 1
                             break
         return board,addScore
@@ -223,4 +226,6 @@ class Board:
 
 a = Board()
 a.toString()
+print("")
+a.performMove("right")
 

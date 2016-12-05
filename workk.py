@@ -1,126 +1,143 @@
-
-
 import random
-
+import copy
 
 class Board:
     def __init__(self):
-        self.board = [ [2,2,2,0],
-                       [2,2,2,2],
-                       [2,2,0,2],
-                       [2,2,2,2] ]
+        self.board = [ [0,0,0,0],
+                       [0,0,0,0],
+                       [0,0,0,0],
+                       [0,0,0,0] ]
+        startRow = random.choice([0, 1, 2, 3])
+        startColumn = random.choice([0, 1, 2, 3])
+        self.board[startRow][startColumn] = 2
+        self.score = 0
 
     def up(self):
-        for j in range(len(self.board)):
+        board = copy.deepcopy(self.board)
+        addScore = 0
+        for j in range(len(board)):
             i = 0
-            while i < len(self.board):
+            while i < len(board):
                 if i < 0:
                     i = 0
-                if self.board[i][j] == 0:
-                    n = self.getNear('up',i,j)
+                if board[i][j] == 0:
+                    n = self.getNear('up',i,j,board)
                     if n != None:
-                        self.board[i][j] = self.board[n][j]
-                        self.board[n][j] = 0
-                        if self.getNear('up',i,j) != None:
+                        board[i][j] = board[n][j]
+                        board[n][j] = 0
+                        if self.getNear('up',i,j,board) != None:
                             continue
                     i += 1
-                elif self.board[i][j] != 0:
-                    n = self.getNear('up',i,j)
+                elif board[i][j] != 0:
+                    n = self.getNear('up',i,j,board)
                     if n != None:
-                        if self.board[n][j] == self.board[i][j]:
-                            self.board[i][j] = self.board[n][j] + self.board[i][j]
-                            self.board[n][j] = 0
+                        if board[n][j] == board[i][j]:
+                            board[i][j] = board[n][j] + board[i][j]
+                            board[n][j] = 0
+                            addScore += board[i][j]
                             i += 1
                         else:
                             i += 1
                             break
+        return board,addScore
 
     def down(self):
-        for j in range(len(self.board) - 1,-1, -1):
-            i = len(self.board) - 1
+        board = copy.deepcopy(self.board)
+        addScore = 0
+        for j in range(len(board) - 1,-1, -1):
+            i = len(board) - 1
             while i >=0 :
                 if i < 0:
                     i = 0
-                if i >= len(self.board):
-                    i = len(self.board) - 1
-                if self.board[i][j] == 0:
-                    n = self.getNear('down',i,j)
+                if i >= len(board):
+                    i = len(board) - 1
+                if board[i][j] == 0:
+                    n = self.getNear('down',i,j,board)
                     if n != None:
-                        self.board[i][j] = self.board[n][j]
-                        self.board[n][j] = 0
-                        if self.getNear('down',i,j) != None:
+                        board[i][j] = board[n][j]
+                        board[n][j] = 0
+                        if self.getNear('down',i,j,board) != None:
                             continue
                     i -= 1
-                elif self.board[i][j] != 0:
-                    n = self.getNear('down',i,j)
+                elif board[i][j] != 0:
+                    n = self.getNear('down',i,j,board)
                     if n != None:
-                        if self.board[n][j] == self.board[i][j]:
-                            self.board[i][j] = self.board[n][j] + self.board[i][j]
-                            self.board[n][j] = 0
+                        if board[n][j] == board[i][j]:
+                            board[i][j] = board[n][j] + board[i][j]
+                            board[n][j] = 0
+                            addScore += board[i][j]
                             i -= 1
                         else:
                             i -= 1
                             break
-
+        return board,addScore
 
     def left(self):
-        for i in range(len(self.board)):
+        board = copy.deepcopy(self.board)
+        addScore = 0
+        for i in range(len(board)):
             j = 0
-            while j < len(self.board):
+            while j < len(board):
                 if j < 0:
                     j = 0
-                if self.board[i][j] == 0:
-                    n = self.getNear('left',i,j)
+                if board[i][j] == 0:
+                    n = self.getNear('left',i,j,board)
                     if n != None:
-                        self.board[i][j] = self.board[i][n]
-                        self.board[i][n] = 0
-                        if self.getNear('left',i,j) != None:
+                        board[i][j] = board[i][n]
+                        board[i][n] = 0
+                        if self.getNear('left',i,j,board) != None:
                             continue
                     j += 1
-                elif self.board[i][j] != 0:
-                    n = self.getNear('left',i,j)
+                elif board[i][j] != 0:
+                    n = self.getNear('left',i,j,board)
                     if n != None:
-                        if self.board[i][n] == self.board[i][j]:
-                            self.board[i][j] = self.board[i][n] + self.board[i][j]
-                            self.board[i][n] = 0
+                        if board[i][n] == board[i][j]:
+                            board[i][j] = board[i][n] + board[i][j]
+                            board[i][n] = 0
+                            addScore += board[i][j]
                             j += 1
                         else:
                             j += 1
                             break
+        return board,addScore
 
     def right(self):
-        for i in range(len(self.board)):
-            j = len(self.board) - 1
+        board = copy.deepcopy(self.board)
+        addScore = 0
+        for i in range(len(board)):
+            j = len(board) - 1
             while j >= 0:
                 if j < 0:
                     j = 0
-                if j >= len(self.board):
-                    j = len(self.board) - 1
-                if self.board[i][j] == 0:
-                    n = self.getNear('right',i,j)
+                if j >= len(board):
+                    j = len(board) - 1
+                if board[i][j] == 0:
+                    n = self.getNear('right',i,j,board)
                     if n != None:
-                        self.board[i][j] = self.board[i][n]
-                        self.board[i][n] = 0
-                        if self.getNear('right',i,j) != None:
+                        board[i][j] = board[i][n]
+                        board[i][n] = 0
+                        if self.getNear('right',i,j,board) != None:
                             continue
                     j -= 1
-                elif self.board[i][j] != 0:
-                    n = self.getNear('right',i,j)
+                elif board[i][j] != 0:
+                    n = self.getNear('right',i,j,board)
                     if n != None:
-                        if self.board[i][n] == self.board[i][j]:
-                            self.board[i][j] = self.board[i][n] + self.board[i][j]
-                            self.board[i][n] = 0
+                        if board[i][n] == board[i][j]:
+                            board[i][j] = board[i][n] + board[i][j]
+                            board[i][n] = 0
+                            addScore += board[i][j]
                             j -= 1
                         else:
                             j -= 1
                             break
-            
-    def getNear(self, direction, baseX, baseY):
+        return board,addScore
+
+    def getNear(self, direction, baseX, baseY, board):
         if direction == 'up':
-            for i in range(baseX, len(self.board)):
+            for i in range(baseX, len(board)):
                 if i == baseX:
                     continue
-                if self.board[i][baseY] != 0:
+                if board[i][baseY] != 0:
                     return i
             return None
 
@@ -128,15 +145,15 @@ class Board:
             for i in range(baseX, -1, -1):
                 if i == baseX:
                     continue
-                if self.board[i][baseY] != 0:
+                if board[i][baseY] != 0:
                     return i
             return None
 
         elif direction == 'left':
-            for j in range(baseY, len(self.board)):
+            for j in range(baseY, len(board)):
                 if j == baseY:
                     continue
-                if self.board[baseX][j] != 0:
+                if board[baseX][j] != 0:
                     return j
             return None
 
@@ -144,17 +161,66 @@ class Board:
             for j in range(baseY, -1, -1):
                 if j == baseY:
                     continue
-                if self.board[baseX][j] != 0:
+                if board[baseX][j] != 0:
                     return j
             return None
-        
+
+    def performMove(self, direction):
+        if direction == "up":
+            self.board,score = self.up()
+            self.score += score
+        elif direction == "down":
+            self.board,score = self.down()
+            self.score += score
+        elif direction == "left":
+            self.board,score = self.left()
+            self.score += score
+        elif direction == "right":
+            self.board,score = self.right()
+            self.score += score
+        else:
+            return
+        if self.isWinning():
+            print("win!")
+        self.reGenerate()
+        self.toString()
+
+    def reGenerate(self):
+        complete = False
+        while not complete:
+            startRow = random.choice([0, 1, 2, 3])
+            startColumn = random.choice([0, 1, 2, 3])
+            if self.board[startRow][startColumn] != 0:
+                continue
+            self.board[startRow][startColumn] = random.choice([2,2,2,2,2,2,2,2,2,4]) #10% of respawning 4
+            complete = True
+
+    #return predict board, predict total score
+    def getPredictMove(self, direction):
+        if direction == "up":
+            board, score = self.up()
+            return board, self.score + score
+        elif direction == "down":
+            board, score = self.down()
+            return board, self.score + score
+        elif direction == "left":
+            board, score = self.left()
+            return board, self.score + score
+        elif direction == "right":
+            board, score = self.right()
+            return board, self.score + score
+
+    def getScore(self):
+        return self.score
+
 
     def toString(self):
         for i in self.board:
             print(i)
-a= Board()
-a.toString()
-a.right()
-print("")
+
+    def isWinning(self):
+        return self.score == 2048
+
+a = Board()
 a.toString()
 

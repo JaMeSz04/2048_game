@@ -4,9 +4,9 @@ import copy
 class Board:
     def __init__(self):
         self.board = [ [0,0,0,0],
-                       [0,2,0,0],
-                       [0,0,8,0],
-                       [2,2,16,8] ]
+                       [0,0,0,0],
+                       [0,0,0,0],
+                       [0,0,0,0] ]
         startRow = random.choice([0, 1, 2, 3])
         startColumn = random.choice([0, 1, 2, 3])
         self.board[startRow][startColumn] = 2
@@ -231,7 +231,4 @@ class Board:
     def isWinning(self):
         return self.score == 2048
 
-a = Board()
-a.toString()
-#print("")
-#a.performMove("right")
+

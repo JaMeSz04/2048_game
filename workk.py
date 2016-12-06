@@ -4,12 +4,12 @@ import copy
 class Board:
     def __init__(self):
         self.board = [ [0,0,0,0],
-                       [0,0,0,0],
-                       [0,0,0,0],
-                       [0,4,0,2] ]
+                       [0,2,0,0],
+                       [0,0,8,0],
+                       [2,2,16,8] ]
         startRow = random.choice([0, 1, 2, 3])
         startColumn = random.choice([0, 1, 2, 3])
-        #self.board[startRow][startColumn] = 2
+        self.board[startRow][startColumn] = 2
         self.score = 0
 
     def up(self):
@@ -38,7 +38,9 @@ class Board:
                             i += 1
                         else:
                             i += 1
-                            break
+                    else:
+                        i += 1
+
         return board,addScore
 
     def down(self):
@@ -69,7 +71,9 @@ class Board:
                             i -= 1
                         else:
                             i -= 1
-                            break
+                    else:
+                        i -= 1
+
         return board,addScore
 
     def left(self):
@@ -99,7 +103,9 @@ class Board:
                         else:
 
                             j += 1
-                            break
+                    else:
+                        j+= 1
+
         return board,addScore
 
     def right(self):
@@ -129,10 +135,11 @@ class Board:
                             addScore += board[i][j]
                             j -= 1
                         else:
-                            board[i][j-1] = board[i][n]
-                            board[i][n] = 0
+
                             j -= 1
-                            break
+                    else:
+                        j -= 1
+
         return board,addScore
 
     def getNear(self, direction, baseX, baseY, board):
@@ -226,6 +233,5 @@ class Board:
 
 a = Board()
 a.toString()
-print("")
-a.performMove("right")
-
+#print("")
+#a.performMove("right")

@@ -190,10 +190,10 @@ class Board:
             self.score += score
         else:
             return
-        if self.isWinning():
-            print("win!")
         self.reGenerate()
         self.toString()
+
+        return self.board
 
     def reGenerate(self):
         complete = False
@@ -228,7 +228,18 @@ class Board:
         for i in self.board:
             print(i)
 
-    def isWinning(self):
-        return self.score == 2048
+    def isWin(self):
+        for i in self.board:
+            if 2048 in i:
+                return True
+        return False
+
+
+    def isLose(self):
+        for i in self.board:
+            if 0 in i:
+                return False
+        return True
+
 
 

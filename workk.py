@@ -11,6 +11,7 @@ class Board:
         startColumn = random.choice([0, 1, 2, 3])
         self.board[startRow][startColumn] = 2
         self.score = 0
+        self.isChange = False
 
     def up(self):
         board = copy.deepcopy(self.board)
@@ -177,20 +178,28 @@ class Board:
 
     def performMove(self, direction):
         if direction == "up":
-            self.board,score = self.up()
+            newBoard,score = self.up()
             self.score += score
         elif direction == "down":
-            self.board,score = self.down()
+            newBoard,score = self.down()
             self.score += score
         elif direction == "left":
-            self.board,score = self.left()
+            newBoard,score = self.left()
             self.score += score
         elif direction == "right":
-            self.board,score = self.right()
+            newBoard,score = self.right()
             self.score += score
         else:
             return
-        self.reGenerate()
+        if newBoard == self.board:
+            self.isChange = False
+        else:
+            self.board = newBoard
+            self.isChange = True
+
+        if self.isChange:
+            self.reGenerate()
+        self.isChange = False
         self.toString()
 
         return self.board
@@ -236,10 +245,12 @@ class Board:
 
 
     def isLose(self):
-        for i in self.board:
-            if 0 in i:
+        allMove = ['up','down','left','right']
+        for i in allMove:
+            if self.getPredictMove(i) != self.board:
                 return False
         return True
+
 
 
 

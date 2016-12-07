@@ -13,8 +13,11 @@ class Board:
         self.score = 0
         self.isChange = False
 
-    def up(self):
-        board = copy.deepcopy(self.board)
+    def up(self,theBoard):
+        if theBoard == None:
+            board = copy.deepcopy(self.board)
+        else:
+            board = copy.deepcopy(theBoard)
         addScore = 0
         for j in range(len(board)):
             i = 0
@@ -44,8 +47,11 @@ class Board:
 
         return board,addScore
 
-    def down(self):
-        board = copy.deepcopy(self.board)
+    def down(self, theBoard):
+        if theBoard == None:
+            board = copy.deepcopy(self.board)
+        else:
+            board = copy.deepcopy(theBoard)
         addScore = 0
         for j in range(len(board) - 1,-1, -1):
             i = len(board) - 1
@@ -77,8 +83,11 @@ class Board:
 
         return board,addScore
 
-    def left(self):
-        board = copy.deepcopy(self.board)
+    def left(self,theBoard):
+        if theBoard == None:
+            board = copy.deepcopy(self.board)
+        else:
+            board = copy.deepcopy(theBoard)
         addScore = 0
         for i in range(len(board)):
             j = 0
@@ -109,8 +118,11 @@ class Board:
 
         return board,addScore
 
-    def right(self):
-        board = copy.deepcopy(self.board)
+    def right(self,theBoard):
+        if theBoard == None:
+            board = copy.deepcopy(self.board)
+        else:
+            board = copy.deepcopy(theBoard)
         addScore = 0
         for i in range(len(board)):
             j = len(board) - 1
@@ -178,16 +190,16 @@ class Board:
 
     def performMove(self, direction):
         if direction == "up":
-            newBoard,score = self.up()
+            newBoard,score = self.up(None)
             self.score += score
         elif direction == "down":
-            newBoard,score = self.down()
+            newBoard,score = self.down(None)
             self.score += score
         elif direction == "left":
-            newBoard,score = self.left()
+            newBoard,score = self.left(None)
             self.score += score
         elif direction == "right":
-            newBoard,score = self.right()
+            newBoard,score = self.right(None)
             self.score += score
         else:
             return
@@ -217,16 +229,30 @@ class Board:
     #return predict board, predict total score
     def getPredictMove(self, direction):
         if direction == "up":
-            board, score = self.up()
+            board, score = self.up(None)
             return board, self.score + score
         elif direction == "down":
-            board, score = self.down()
+            board, score = self.down(None)
             return board, self.score + score
         elif direction == "left":
-            board, score = self.left()
+            board, score = self.left(None)
             return board, self.score + score
         elif direction == "right":
-            board, score = self.right()
+            board, score = self.right(None)
+            return board, self.score + score
+
+    def getPredictMoveOf(self, direction, theBoard):
+        if direction == "up":
+            board, score = self.up(theBoard)
+            return board, self.score + score
+        elif direction == "down":
+            board, score = self.down(theBoard)
+            return board, self.score + score
+        elif direction == "left":
+            board, score = self.left(theBoard)
+            return board, self.score + score
+        elif direction == "right":
+            board, score = self.right(theBoard)
             return board, self.score + score
 
     def getScore(self):

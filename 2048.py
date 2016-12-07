@@ -1,5 +1,4 @@
 import pygame
-from Colors import*
 from workk import*
 
 
@@ -15,6 +14,10 @@ CELL_MARGIN = 5
 CELL_ASSETS = ['0', '2', '4', '8', '16', '32', '64', '128', '256', '512',
                '1024','2048','4096','8192']
 
+class Color:
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
+
 gameDisplay = pygame.display.set_mode((800,600))
 pygame.display.set_caption("2048 Game by ShubU")
 
@@ -27,7 +30,7 @@ def clearText():
 
 over = False
 while not over:
-    pygame.draw.rect(gameDisplay,(0,0,0),(20,20,170,100))
+    pygame.draw.rect(gameDisplay,(0,0,0),(20,20,400,100))
     font = pygame.font.SysFont("monospace", 28)
     label = font.render(score + str(board.getScore()), 1, (255,255,255))
     gameDisplay.blit(label, (20,20))

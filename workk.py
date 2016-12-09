@@ -1,5 +1,7 @@
 import random
 import copy
+import itertools
+import math
 
 class Board:
     def __init__(self):
@@ -212,7 +214,7 @@ class Board:
         if self.isChange:
             self.reGenerate()
         self.isChange = False
-        self.toString()
+        #self.toString()
 
         return self.board
 
@@ -270,12 +272,255 @@ class Board:
         return False
 
 
+
+
+    def getPredictAll(self,board):
+        allMove = ['up', 'down', 'left', 'right']
+        return [self.getPredictMoveOf(i,board) for i in allMove]
+
     def isLose(self):
         allMove = ['up','down','left','right']
         for i in allMove:
             if self.getPredictMove(i) != self.board:
                 return False
         return True
+
+    def isLoseWith(self,board):
+        allMove = ['up', 'down', 'left', 'right']
+        for i in allMove:
+            if self.getPredictMoveOf(i,board) != self.board:
+                return False
+        return True
+
+    def solve(self,board,oldBoard,depth, isMove = False):
+        if type(board) == tuple:
+            board = board[0]
+        if depth == 0 or (isMove and self.isLoseWith(board)):
+            return self.heuristic(board,oldBoard)
+
+        alpha = self.heuristic(board,oldBoard)
+
+        if isMove:
+            for child in self.getPredictAll(board):
+                alpha = max(alpha, self.solve(child,oldBoard, depth - 1, False))
+        else:
+            alpha = 0
+            zeros = self.getEmptyCells(board)
+
+            for i,j in zeros:
+                temp1 = [[x for x in row] for row in board]
+                temp2 = [[x for x in row] for row in board]
+                temp1[i][j] = 2
+                temp2[i][j] = 4
+                twoProbab = ( 0.9 * self.solve(temp1,oldBoard, depth - 1, True) / len(zeros))
+                fourProbab = ( 0.1 * self.solve(temp2,oldBoard, depth - 1, True) / len(zeros))
+                alpha += twoProbab + fourProbab
+                return alpha
+        return alpha
+
+
+    def getEmptyCells(self,board):
+        if type(board) == tuple:
+            board = board[0]
+        zeros = []
+        for i in range(len(board)):
+            for j in range(len(board)):
+                if board[i][j] == 0:
+                    zeros.append((i,j))
+
+        return zeros
+
+    def heuristic(self,board,oldBoard):
+        if self.isLoseWith(board):
+            return -float("inf")
+        val = 0
+        empty = len(self.getEmptyCells(board))
+        val += empty
+        val = val - (16 - empty)
+        val += self.getNumEdgeLarge(board) * 2
+        val += self.getNumEdgeCorner(board)
+        #val += self.scoreClose(board)
+        #val += self.secondLargestClose(board) / 100
+        #val += self.closeToMax(board)
+        #val -= self.numMinCorner(board)
+        #val -= self.manhatton(board)
+        if oldBoard == board:
+            return 0
+        return val
+
+    def numMinCorner(self,board):
+        num = 0
+        maximum = 0
+        secondMax = 0
+        for i in board:
+            for j in i:
+                if j > maximum:
+                    maximum = j
+        if board[0][0] != maximum:
+            num += 2
+        if board[0][len(board) - 1] != maximum:
+            num += 2
+        if board[len(board) - 1][0] != maximum:
+            num += 2
+        if board[len(board) - 1][len(board) - 1] != maximum:
+            num += 2
+        return num
+
+
+
+    def closeToMax(self,board):
+        total = 0
+        for i in board:
+            for j in i:
+                total += j
+        return total / 1000
+    def scoreClose(self,board):
+        num = 0
+        maximum = 0
+        secondMax = 0
+        for i in board:
+            for j in i:
+                if j > maximum:
+                    maximum = j
+        returnVal = math.log(2048, 2) - math.log(maximum,2)
+        if returnVal < 0:
+            return 0
+        return returnVal
+
+    def getNumEdgeLarge(self,board):
+        num = 0
+        maximum = 0
+        secondMax = 0
+        for i in board:
+            for j in i:
+                if j > maximum:
+                    maximum = j
+
+        for i in range(len(board)):
+            for j in range(len(board)):
+                if i == 0:
+                    if board[i][j] == maximum:
+                        num += 2
+                    if board[i][j] == secondMax:
+                        num += 1
+                if i == len(board) - 1:
+                    if board[i][j] == maximum:
+                        num += 2
+                    if board[i][j] == secondMax:
+                        num += 1
+                if j == 0:
+                    if board[i][j] == maximum:
+                        num += 2
+                    if board[i][j] == secondMax:
+                        num += 1
+
+                if i == len(board) - 1:
+                    if board[i][j] == maximum:
+                        num += 2
+                    if board[i][j] == secondMax:
+                        num += 1
+        return num
+
+    def manhatton(self,board):
+        num = 0
+        maximum = 0
+        secondMax = 0
+        maxI = 0
+        maxJ = 0
+        maxI2 = 0
+        maxJ2 = 0
+        for i in board:
+            for j in i:
+                if j > maximum:
+                    maximum = j
+        for i in range(len(board)):
+            for j in range(len(board)):
+                if board[i][j] == maximum:
+                    maxI = i
+                    maxJ = j
+                if board[i][j] == secondMax:
+                    maxI2 = i
+                    maxJ2 = j
+        return abs(maxI2 - maxI) + abs(maxJ2 - maxJ)
+
+    def getNumEdgeCorner(self,board):
+        if type(board) == tuple:
+            board = board[0]
+        num = 0
+        maximum = 0
+
+        if board[0][0] == maximum:
+            num += 2
+        if board[len(board)- 1][0] == maximum:
+            num += 2
+        if board[0][len(board) - 1] == maximum:
+            num += 2
+        if board[len(board) -1][len(board) -1] == maximum:
+            num += 2
+        return num
+
+    def secondLargestClose(self, board):
+        if type(board) == tuple:
+            board = board[0]
+        num = 0
+        maximum = 0
+        secondMax = []
+        for i in board:
+            for j in i:
+                if j > maximum:
+                    maximum = j
+
+
+        for i in range(len(board)):
+            for j in range(len(board)):
+                if board[i][j] == maximum:
+                    tempCol = j + 1
+                    while tempCol <= len(board) - 1:
+                        if board[i][tempCol] != 0:
+                            num += board[i][tempCol]
+                        tempCol += 1
+
+                    tempCol = j - 1
+                    while tempCol >= 0:
+                        if board[i][tempCol] != 0:
+                            if board[i][tempCol] == secondMax or board[i][tempCol] == maximum:
+                                num += 1
+                            elif board[i][tempCol] == maximum:
+                                num += 2
+                            else:
+                                break
+                        tempCol -= 1
+
+
+                    tempRow = i + 1
+                    while tempRow <= len(board) - 1:
+                        if board[tempRow][j] != 0:
+                            if board[tempRow][j] == secondMax or board[tempRow][j] == maximum:
+                                num += 1
+                            elif board[tempRow][j] == maximum:
+                                num += 2
+                            else:
+                                break
+                        tempRow += 1
+
+                    tempRow = i - 1
+                    while tempRow >= 0:
+                        if board[tempRow][j] != 0:
+                            if board[tempRow][j] == secondMax or board[tempRow][j] == maximum:
+                                num += 1
+                            elif board[tempRow][j] == maximum:
+                                num += 2
+                            else:
+                                break
+                        tempRow -= 1
+        return num
+
+
+
+
+
+
+
 
 
 

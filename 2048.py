@@ -2,6 +2,8 @@ import pygame
 from workk import*
 
 
+
+
 score = "Score : "
 board = Board()
 
@@ -13,6 +15,7 @@ CELL_MARGIN = 5
 
 CELL_ASSETS = ['0', '2', '4', '8', '16', '32', '64', '128', '256', '512',
                '1024','2048','4096','8192']
+MOVEMENT = ['up','down','left','right']
 
 class Color:
     BLACK = (0, 0, 0)
@@ -29,6 +32,8 @@ def clearText():
 
 
 over = False
+doAI = False
+prevMove = None
 while not over:
     pygame.draw.rect(gameDisplay,(0,0,0),(20,20,400,100))
     font = pygame.font.SysFont("monospace", 28)
@@ -65,7 +70,25 @@ while not over:
                 if event.key == pygame.K_RIGHT:
                     board.performMove('right')
                     clearText()
+                if event.key == pygame.K_RETURN:
+                    doAI = True
+
             print(event)
+
+        if doAI:
+            movement = ['up', 'down', 'left', 'right']
+            actions = board.getPredictAll(board.board)
+            scores = [board.solve(child,child, 4, False) for child in actions]
+            #print("SCORE : " + str(scores))
+            toMove = movement[scores.index(max(scores))]
+            #print("toMove : " + str(toMove))
+            #print("predicted : " + str(board.getPredictMove(toMove) == board.board))
+            while board.getPredictMove(toMove)[0] == board.board:
+                scores[scores.index(max(scores))] = -100
+                toMove = movement[scores.index(max(scores))]
+            prevMove = toMove
+            board.performMove(toMove)
+
 
     elif board.isWin():
         pygame.draw.rect(gameDisplay, (0, 0, 150), (270, 150, 300, 170))

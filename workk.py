@@ -334,19 +334,66 @@ class Board:
         if self.isLoseWith(board):
             return -float("inf")
         val = 0
-        empty = len(self.getEmptyCells(board))
+        empty = len(self.getEmptyCells(board)) * 10
         val += empty
-        val = val - (16 - empty)
-        val += self.getNumEdgeLarge(board) * 2
-        val += self.getNumEdgeCorner(board)
-        #val += self.scoreClose(board)
+        val = val - ((16 - empty))
+        val += self.getNumEdgeLarge(board) * 1.5
+        val += self.getNumEdgeCorner(board) * 10
+        #val += self.scoreClose(board) / 2
         #val += self.secondLargestClose(board) / 100
         #val += self.closeToMax(board)
         #val -= self.numMinCorner(board)
         #val -= self.manhatton(board)
+        #val += self.getMaximum(board)
+        #val += self.distanceBtwPoints(board)
+        val -= self.friendshipNeverDie(board) / 5
         if oldBoard == board:
-            return 0
+            return -float('inf')
         return val
+
+    def friendshipNeverDie(self,board):
+        maximum = 0
+        score = 0
+        for i in range(len(board)):
+            for j in range(len(board)):
+                if board[i][j] > maximum:
+                    maximum = board[i][j]
+                    maxIndex = (i, j)
+        if maxIndex[0] - 1 > 0:
+            score += maximum - (board[maxIndex[0] - 1][maxIndex[1]])
+        if maxIndex[0] + 1 < len(board):
+            score += maximum - (board[maxIndex[0] + 1][maxIndex[1]])
+
+        if maxIndex[1] - 1 > 0:
+            score += maximum - (board[maxIndex[0]][maxIndex[1] - 1])
+        if maxIndex[1] + 1 < len(board):
+            score += maximum - (board[maxIndex[0]][maxIndex[1] + 1])
+
+        return score
+    def distanceBtwPoints(self,board):
+        maximum = 0
+        for i in range(len(board)):
+            for j in range(len(board)):
+                if board[i][j] > maximum:
+                    maximum = board[i][j]
+                    maxIndex = (i,j)
+        num = maximum
+
+        val = 0
+        divider = 1
+        while num > 2:
+            for i in range(len(board)):
+                for j in range(len(board)):
+                    if board[i][j] == num:
+                        val += (math.sqrt( (( i - maxIndex[0] )**2) + ((j - maxIndex[1])**2) )) / divider
+            divider = divider ** 2
+            num = num / 2
+
+
+        return val / 5
+
+
+
 
     def numMinCorner(self,board):
         num = 0
@@ -357,23 +404,18 @@ class Board:
                 if j > maximum:
                     maximum = j
         if board[0][0] != maximum:
-            num += 2
+            num += maximum - board[0][0]
         if board[0][len(board) - 1] != maximum:
-            num += 2
+            num += maximum - board[0][len(board) -1]
         if board[len(board) - 1][0] != maximum:
-            num += 2
+            num += maximum - board[len(board)-1][0]
         if board[len(board) - 1][len(board) - 1] != maximum:
-            num += 2
-        return num
+            num += maximum - board[len(board) -1 ][len(board) - 1]
+        return num / 100
 
 
 
-    def closeToMax(self,board):
-        total = 0
-        for i in board:
-            for j in i:
-                total += j
-        return total / 1000
+
     def scoreClose(self,board):
         num = 0
         maximum = 0
@@ -401,24 +443,24 @@ class Board:
                 if i == 0:
                     if board[i][j] == maximum:
                         num += 2
-                    if board[i][j] == secondMax:
-                        num += 1
+                    if board[i][j] == secondMax and secondMax != 0:
+                        num += 0.5
                 if i == len(board) - 1:
                     if board[i][j] == maximum:
                         num += 2
-                    if board[i][j] == secondMax:
-                        num += 1
+                    if board[i][j] == secondMax and secondMax != 0:
+                        num += 0.5
                 if j == 0:
                     if board[i][j] == maximum:
                         num += 2
-                    if board[i][j] == secondMax:
-                        num += 1
+                    if board[i][j] == secondMax and secondMax != 0:
+                        num += 0.5
 
                 if i == len(board) - 1:
                     if board[i][j] == maximum:
                         num += 2
-                    if board[i][j] == secondMax:
-                        num += 1
+                    if board[i][j] == secondMax and secondMax != 0:
+                        num += 0.5
         return num
 
     def manhatton(self,board):
@@ -448,7 +490,10 @@ class Board:
             board = board[0]
         num = 0
         maximum = 0
-
+        for i in board:
+            for j in i:
+                if j > maximum:
+                    maximum = j
         if board[0][0] == maximum:
             num += 2
         if board[len(board)- 1][0] == maximum:

@@ -3,7 +3,6 @@ from workk import*
 
 
 
-
 score = "Score : "
 board = Board()
 
@@ -70,7 +69,7 @@ while not over:
                 if event.key == pygame.K_RIGHT:
                     board.performMove('right')
                     clearText()
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
                     doAI = True
 
             print(event)
@@ -84,11 +83,19 @@ while not over:
             #print("toMove : " + str(toMove))
             #print("predicted : " + str(board.getPredictMove(toMove) == board.board))
             while board.getPredictMove(toMove)[0] == board.board:
-                scores[scores.index(max(scores))] = -100
+                movement.pop(scores.index(max(scores)))
+                scores.remove(max(scores))
+                if len(scores) == 0:
+                    break
                 toMove = movement[scores.index(max(scores))]
             prevMove = toMove
-            board.performMove(toMove)
-
+            if len(scores) == 0:
+                movement = ['up', 'down', 'left', 'right']
+                for i in movement:
+                    board.performMove(i)
+            else:
+                board.performMove(toMove)
+            movement = ['up', 'down', 'left', 'right']
 
     elif board.isWin():
         pygame.draw.rect(gameDisplay, (0, 0, 150), (270, 150, 300, 170))

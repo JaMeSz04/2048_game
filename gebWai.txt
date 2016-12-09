@@ -1,0 +1,17 @@
+
+solve(Board,Depth) :-
+    once(goUp(Board, Up)),
+    expected(Board, Up, Depth, ScoreUp),
+
+    once(goDown(Board, Down)),
+    expected(Board, Down, Depth, ScoreDown),
+
+    once(goLeft(Board, Left)),
+    expected(Board, Left, Depth, ScoreLeft),
+
+    once(goRight(Board, Right)),
+    expected(Board, Right, Depth, ScoreRight),
+
+    getMax(ScoreUp,ScoreDown,ScoreLeft,ScoreRight, NextMove),
+    performMove(Board, NextMove, NewBoard),
+    solve(NewBoard,Depth).

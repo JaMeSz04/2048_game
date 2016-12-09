@@ -43,18 +43,18 @@ rotateLeft([A1,A2,A3,A4,B1,B2,B3,B4,C1,C2,C3,C4,D1,D2,D3,D4],[E1,E2,E3,E4,F1,F2,
 
 goUp(Board, NewBoard):-
 	rotateLeft(Board, Temp1),
-	moveLeft(Temp1, Temp2),
+	goLeft(Temp1, Temp2),
 	rotateRight(Temp2, NewBoard).
 
 goDown(Board, NewBoard):-
 	rotateRight(Board, Temp1),
-	moveLeft(Temp1, Temp2),
+	goLeft(Temp1, Temp2),
 	rotateLeft(Temp2, NewBoard).
 
 goRight(Board, NewBoard):-
 	rotateLeft(Board, Temp1),
 	rotateLeft(Temp1, Temp2),
-	moveLeft(Temp2, Temp3),
+	goLeft(Temp2, Temp3),
 	rotateRight(Temp3, Temp4),
 	rotateRight(Temp4, NewBoard).
 

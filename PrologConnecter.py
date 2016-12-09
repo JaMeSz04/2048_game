@@ -21,13 +21,16 @@ class Connector:
 
     def getMove(self, direction):
         if direction == 'up':
-            return self.prolog.query('goUp(' + str(self.board) + ', New)')
+            return list(self.prolog.query('move(' + str(self.board) + ',u, New)'))
+
 
 pl = Connector('2048Bot.pl')
-board = [ [0,0,0,0],
+board = [ [0,2,0,0],
           [2,2,0,0],
-          [0,0,2,0],
-          [4,0,0,0] ]
+          [0,2,2,0],
+          [4,2,0,0] ]
+
 pl.setBoard(board)
-print(pl.getMove('up'))
+for i in pl.getMove('up'):
+    print(i)
 

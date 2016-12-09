@@ -1,4 +1,3 @@
-
 move(Board, u, NewBoard) :- once(goUp(Board, NewBoard)).
 move(Board, d, NewBoard) :- once(goDown(Board, NewBoard)).
 move(Board, l, NewBoard) :- once(goLeft(Board, NewBoard)).
@@ -303,7 +302,6 @@ solve(Board,Depth) :-
     performMove(Board, NextMove, NewBoard),
     solve(NewBoard,Depth).
 
-
 performMove(Board, l, NewBoard) :-
 	once(goLeft(Board, B)),
 	addNew(B, NewBoard).
@@ -315,7 +313,6 @@ performMove(Board, d, NewBoard) :-
 	addNew(B, NewBoard).
 performMove(Board, u, NewBoard) :-
 	once(goUp(Board, B)).
-
 
 getMax(ScoreL, ScoreR, ScoreU, ScoreD, r) :-
 	ScoreR >= ScoreU,
@@ -330,6 +327,10 @@ getMax(ScoreL, ScoreR, ScoreU, ScoreD, d) :-
 	ScoreD >= ScoreR,
 	ScoreD >= ScoreL.
 getMax(_, _, _, _, l).
+
+equal([H1|T1], [H2 |T2]) :-
+    H1 == H2,
+    equal(T1,T2).
 
 expected(Board, NewBoard, _, 0) :-
     equal(Board,NewBoard).
@@ -423,25 +424,23 @@ evalNext([A1,A2,A3,A4,B1,B2,B3,B4,C1,C2,C3,C4,D1,D2,D3,0], 15, Level, Score) :-
 evalNext(_, _, _, 0).
 
 evalMoves(B2, B4, Level, Score) :-
-	once(moveLeft(B2, B2L)),
+	once(goLeft(B2, B2L)),
 	expected(B2, B2L, Level, S2L),
-	once(moveLeft(B4, B4L)),
+	once(goLeft(B4, B4L)),
 	expected(B4, B4L, Level, S4L),
-	once(moveRight(B2, B2R)),
+	once(goRight(B2, B2R)),
 	expected(B2, B2R, Level, S2R),
-	once(moveRight(B4, B4R)),
+	once(goRight(B4, B4R)),
 	expected(B4, B4R, Level, S4R),
-	once(moveUp(B2, B2U)),
+	once(goUp(B2, B2U)),
 	expected(B2, B2U, Level, S2U),
-	once(moveUp(B4, B4U)),
+	once(goUp(B4, B4U)),
 	expected(B4, B4U, Level, S4U),
-	once(moveDown(B2, B2D)),
+	once(goDown(B2, B2D)),
 	expected(B2, B2D, Level, S2D),
-	once(moveDown(B4, B4D)),
+	once(goDown(B4, B4D)),
 	expected(B4, B4D, Level, S4D),
 	Score is 9*(S2L+S2R+S2U+S2D)+S4L+S4R+S4U+S4D.
-
-
 
 getScore(Board,BoardScore) :-
     squared(Board, Squared),
@@ -451,3 +450,4 @@ squared([], []).
 squared([H1|T1], [H2|T2]) :-
 	H2 is H1 * H1,
 	squared(T1,T2).
+

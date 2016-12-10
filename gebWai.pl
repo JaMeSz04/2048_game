@@ -36,7 +36,7 @@ aigame(Board, _) :-
 	noMoreMoves(Board),
 	nl,write('AI failed :('),nl,
 	abort.
-aigame(Board, Depth) :-
+aigame(Board, Depth, Move) :-
 	write('Scores:'),
 	once(moveLeft(Board, L)),
 	evaluate(Board, L, Depth, ScoreL),
@@ -51,9 +51,8 @@ aigame(Board, Depth) :-
 	evaluate(Board, D, Depth, ScoreD),
 	write(' D='),write(ScoreD),
 	selectMove(ScoreL, ScoreR, ScoreU, ScoreD, Move),
-	aimove(Board, Move, NewBoard),
-	showBoard(NewBoard),
-	aigame(NewBoard, Depth).
+	aimove(Board, Move, NewBoard).
+
 
 aimove(Board, l, NewBoard) :-
 	write(', Move: left'),nl,
@@ -204,7 +203,42 @@ evalMoves(B2, B4, Level, Score) :-
 % of all tile values
 boardScore(Board, Score) :-
 	squared(Board, Squared),
-	sum_list(Squared, Score).
+	sum_list(Squared, Hehe),
+	penalty(Board, Hehe, Peradon),
+	edgeScore( Board, Peradon, Score ).
+
+isEdge( A1,A2,A3,A4, Score ):-
+	A1 =< A2,
+	A2 =< A3,
+	A3 =< A4,
+	Score is 2.
+
+isEdge( _,_,_,_,0 ).
+
+edgeScore( [ A1,A2,A3,A4, B1,B2,B3,B4, C1,C2,C3,C4, D1,D2,D3,D4 ], Peradon, Score ):-
+    isEdge( A1,A2,A3,A4, Hor1 ),
+    isEdge( B1,B2,B3,B4, Hor2 ),
+    isEdge( C1,C2,C3,C4, Hor3 ),
+    isEdge( D1,D2,D3,D4, Hor4 ),
+
+    isEdge( A1,B1,C1,D1, Ver1 ),
+    isEdge( A2,B2,C2,D2, Ver2 ),
+    isEdge( A3,B3,C3,D3, Ver3 ),
+    isEdge( A4,B4,C4,D4, Ver4 ),
+
+    Score is Peradon + Hor1 + Hor2 + Hor3 + Hor4 + Ver1 + Ver2 + Ver3 + Ver4.
+
+penalty([H1|T1] , Hehe, Score) :-
+    penalty( T1, Hehe, Score ).
+
+penalty([H1|T1] , Hehe, Score) :-
+    H1 is 0,
+    penalty( T1, Hehe, Score1 ),
+    Score is Score1 + 1.
+
+penalty([], Hehe, Hehe).
+
+
 
 % square every value of a list
 squared([], []).

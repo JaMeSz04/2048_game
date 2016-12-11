@@ -6,8 +6,10 @@
 %  and is used as a list:
 %   [A1,A2,A3,A4,B1,B2,B3,B4,C1,C2,C3,C4,D1,D2,D3,D4]
 
-% we don't want to calculate scores for the same board over and over
+% we dont want to calculate scores for the same board over and over
 % again
+:- use_module(library(clpr)).
+
 :- dynamic(boardScore/2).
 
 % start the game
@@ -26,16 +28,18 @@ ai :-
 ai(Depth) :-
 	generate(Board),
 	showBoard(Board),
-	aigame(Board, Depth).
+	aigame(Board, Depth, Move).
 
 aigame(Board, _) :-
 	max_list(Board, 2048),
 	nl,write('AI succeded!'),nl,
 	abort.
+
 aigame(Board, _) :-
 	noMoreMoves(Board),
 	nl,write('AI failed :('),nl,
 	abort.
+
 aigame(Board, Depth, Move) :-
 	write('Scores:'),
 	once(moveLeft(Board, L)),
@@ -49,10 +53,9 @@ aigame(Board, Depth, Move) :-
 	write(' U='),write(ScoreU),
 	once(moveDown(Board, D)),
 	evaluate(Board, D, Depth, ScoreD),
-	write(' D='),write(ScoreD),
+	write(' D='),write(ScoreD),write('\n'),
 	selectMove(ScoreL, ScoreR, ScoreU, ScoreD, Move),
-	aimove(Board, Move, NewBoard).
-
+	!.
 
 aimove(Board, l, NewBoard) :-
 	write(', Move: left'),nl,
@@ -91,6 +94,7 @@ evaluate(Board, NewBoard, _, 0) :-
 	equal(Board, NewBoard).
 % this, along with the evalNext and evalMoves predicates search the game
 % space for the best move
+
 evaluate(_, Board, Level, Score) :-
 	Level >= 0,
 	NewLevel is Level - 1,
@@ -203,47 +207,148 @@ evalMoves(B2, B4, Level, Score) :-
 % of all tile values
 boardScore(Board, Score) :-
 	squared(Board, Squared),
-	sum_list(Squared, Hehe),
-	penalty(Board, Hehe, Peradon),
-	edgeScore( Board, Peradon, Score ).
+	sum_list(Squared, PreScore1),
+	%write( 'SumList : ' ), write( PreScore1 ),
+	penalty(Board, PreScore1, PreScore2),
+	write( ' 0Reward: ' ), write( PreScore2 - PreScore1 ),
+	maxOnEdge( Board, PreScore2, PreScore3 ),
+	adjacentCell( Board, PreScore3, PreScore4 ),
+	monotonic( Board, PreScore4, PreScore5 ),
+	corner( Board, PreScore5, Score ).
 
-isEdge( A1,A2,A3,A4, Score ):-
-	A1 =< A2,
-	A2 =< A3,
-	A3 =< A4,
-	Score is 2.
+corner( [A1,A2,A3,A4, B1,B2,B3,B4, C1,C2,C3,C4, D1,D2,D3,D4], InputScore, Score ):-
+    findMax( Board, Value ),
+    member( [A1,A4,D1,D4], Value, Bool ),
+    ThisScore is 50 * Bool,
+    Score is InputScore + ThisScore.
 
-isEdge( _,_,_,_,0 ).
+member( [], _, 0 ):- !.
 
-edgeScore( [ A1,A2,A3,A4, B1,B2,B3,B4, C1,C2,C3,C4, D1,D2,D3,D4 ], Peradon, Score ):-
-    isEdge( A1,A2,A3,A4, Hor1 ),
-    isEdge( B1,B2,B3,B4, Hor2 ),
-    isEdge( C1,C2,C3,C4, Hor3 ),
-    isEdge( D1,D2,D3,D4, Hor4 ),
+member( [X|Y], X, 1 ):- !.
 
-    isEdge( A1,B1,C1,D1, Ver1 ),
-    isEdge( A2,B2,C2,D2, Ver2 ),
-    isEdge( A3,B3,C3,D3, Ver3 ),
-    isEdge( A4,B4,C4,D4, Ver4 ),
+member( [X|Y] , Value, Bool ):-
+    member( Y, Value, Bool ).
 
-    Score is Peradon + Hor1 + Hor2 + Hor3 + Hor4 + Ver1 + Ver2 + Ver3 + Ver4.
+findMax( [], 0 ):- !.
 
+findMax( [X|Y], Value ):- !,
+    findMax( Y, Value1 ),
+    max( X, Value1, Value ).
+
+max( X, Y, X ):-
+    X > Y, !.
+
+max( X, Y, Y ):-
+    Y >= X, !.
+%%%%%%%%%%%%%%%
+monotonic( [A1,A2,A3,A4, B1,B2,B3,B4, C1,C2,C3,C4, D1,D2,D3,D4], InputScore, Score ):-
+    computeMono( [A1,A2,A3,A4] , Score1),
+    computeMono( [B1,B2,B3,B4] , Score2),
+    computeMono( [C1,C2,C3,C4] , Score3),
+    computeMono( [D1,D2,D3,D4] , Score4),
+
+    computeMono( [A1,B1,C1,D1] , Score5),
+    computeMono( [A2,B2,C2,D2] , Score6),
+    computeMono( [A3,B3,C3,D3] , Score7),
+    computeMono( [A4,B4,C4,D4] , Score8),
+
+    ThisScore is (Score1 + Score2+ Score3+ Score4+ Score5+ Score6+ Score7+ Score8),
+    Score is InputScore + ThisScore*0.8,
+    write( ' Mono: ' ), write( ThisScore ).
+
+
+%%%%%%%%%%%%%%
+log( 0, _, 0 ):- !.
+
+log( X, Y, Z ):-
+    { X = Y^Z }, !.
+
+computeMono( [_|[]], 0 ) :- !.
+
+computeMono( [X,Y|Z] , Score):-
+    X is Y/2, !,
+    computeMono( [Y|Z] , ScoreT ),
+    log( X,2,Log1 ), log( Y,2,Log2 ),
+    Score is ScoreT + Log1 + Log2.
+
+computeMono( [X,Y|Z] , Score):-
+    X is Y/4, !,
+    computeMono( [Y|Z] , ScoreT ),
+    log( X,2,Log1 ), log( Y,2,Log2 ),
+    Score is ScoreT + Log1 + Log2.
+
+computeMono( [X,Y|Z] , Score):-
+    X is Y*2, !,
+    computeMono( [Y|Z] , ScoreT ),
+    log( X,2,Log1 ), log( Y,2,Log2 ),
+    Score is ScoreT + Log1 + Log2.
+
+computeMono( [X,Y|Z] , Score):-
+    X is Y*4, !,
+    computeMono( [Y|Z] , ScoreT ),
+    log( X,2,Log1 ), log( Y,2,Log2 ),
+    Score is ScoreT + Log1 + Log2.
+
+computeMono( [_, _|Z], Score ):-
+     !,
+    computeMono( [Y|Z], Score ).
+
+maxOnEdge( [A1,A2,A3,A4, B1,B2,B3,B4, C1,C2,C3,C4, D1,D2,D3,D4], InputScore ,Score ):-
+    ThisScore is ((A1 + A2 +A3 +A4 +B1 +B4 +C1 +C4 +D1 +D2 +D3 +D4))*0.3,
+    Score is InputScore + ThisScore,
+    write( ' Edge: ' ), write( ThisScore ).
+
+%%%%%%
 penalty([H1|T1] , Hehe, Score) :-
-    penalty( T1, Hehe, Score ).
+    H1 =\= 0, !,
+    penalty( T1, Hehe, Score ), !.
 
 penalty([H1|T1] , Hehe, Score) :-
     H1 is 0,
     penalty( T1, Hehe, Score1 ),
-    Score is Score1 + 1.
+    Score is Score1 + 10, !.
 
 penalty([], Hehe, Hehe).
 
+%%%%%%%
+adjacentCell( [A1,A2,A3,A4,B1,B2,B3,B4,C1,C2,C3,C4,D1,D2,D3,D4], InputScore , Score ):-
+    adjacent( A1,[A2,B1], Score1 ),
+    adjacent( A2,[A1,A3,B2], Score2 ),
+    adjacent( A3,[A2,A4,B3], Score3 ),
+    adjacent( A4,[A3,B4 ], Score4),
+
+    adjacent( B1,[B2,C1,A1], Score5 ),
+    adjacent( B2,[B1,B3,A2,C2], Score6 ),
+    adjacent( B3,[B2,B4,A3,C3], Score7 ),
+    adjacent( B4,[B3,A4,C4 ], Score8),
+
+    adjacent( C1,[C2,B1,D1], Score9 ),
+    adjacent( C2,[C1,C3,B2,D2], Score10 ),
+    adjacent( C3,[C2,C4,B3,D3], Score11 ),
+    adjacent( C4,[C3,B4,D4 ], Score12),
+
+    adjacent( D1,[D2,C1], Score13 ),
+    adjacent( D2,[D1,D3,C2], Score14 ),
+    adjacent( D3,[D2,D4,C3], Score15 ),
+    adjacent( D4,[D3,C4 ], Score16),
+    Score is InputScore + Score1+ Score2+ Score3+ Score4+ Score5+ Score6+ Score7+ Score8+ Score9+ Score10+ Score11+ Score12+ Score13+ Score14+ Score15+ Score16,
+    write( ' Adjacent: ' ), write( Score - InputScore ),write('\n').
+
+adjacent( _,[], 0 ):- !.
+
+adjacent( Z ,[X|Y], Score ):-
+    Z =\= X, !,
+    adjacent( Z, Y, Score ).
+
+adjacent( Z, [Z|Y], Score ):-
+    adjacent( Z, Y, Score1 ),
+    Score is Score1 + 1.
 
 
 % square every value of a list
 squared([], []).
 squared([H1|T1], [H2|T2]) :-
-	H2 is H1 * H1,
+	H2 is H1 * H1 *H1 *H1,
 	squared(T1,T2).
 
 % if you reach 2048, you win!

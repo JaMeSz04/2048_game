@@ -2,6 +2,8 @@ from pyswip import Functor, Variable, Query, Prolog
 
 class Connector:
     def __init__(self, file):
+
+        self.file = file
         self.prolog = Prolog()
         self.board = None
         self.prolog.consult(file)
@@ -17,33 +19,21 @@ class Connector:
         self.prolog.assertz(rule)
 
     def command(self, cmd):
-        return list(self.prolog.query(cmd))
+        return self.prolog.query(cmd)
 
     def getMove(self, direction):
         if direction == 'up':
             return list(self.prolog.query('move(' + str(self.board) + ',u, New)'))
-
         elif direction == 'down':
             return list(self.prolog.query('move(' + str(self.board) + ',d, New)'))
-
         elif direction == 'left':
             return list(self.prolog.query('move(' + str(self.board) + ',l, New)'))
-
         elif direction == 'right':
             return list(self.prolog.query('move(' + str(self.board) + ',r, New)'))
 
-    def solve(self):
-        return list(self.prolog.query('solve(' + str(self.board) + ', 4 )'))
-
-pl = Connector('2048Bot.pl')
-board = [ [0,2,0,0],
-          [2,2,0,0],
-          [0,2,2,0],
-          [4,2,0,0] ]
-
-pl.setBoard(board)
-print(pl.getMove('up'))
-print(pl.getMove('down'))
-print(pl.solve())
-print("")
-
+    def aiMove(self, board, depth):
+        self.setBoard(board)
+        if self.file == 'Peradon.pl':
+            print(list(self.prolog.query('solve(' +  '[0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0]' + ',' + '1' + ', Avg, Action)')))
+        elif self.file == 'gebWai.pl':
+            return list( self.prolog.query('aigame(' + str(self.board) + ',' + str(depth) + ',Move)'))

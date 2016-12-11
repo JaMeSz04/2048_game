@@ -78,6 +78,8 @@ while not over:
                     #board.performMove('right')
                     boardNum += 1
                     clearText()
+                if event.key == pygame.K_SPACE:
+                    doAI = False
                 if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
                     doAI = True
 

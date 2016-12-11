@@ -1,7 +1,7 @@
 import pygame
 from pyswip import Prolog
 from PrologConnecter import Connector
-from workk import*
+from Board import*
 
 
 
@@ -36,7 +36,7 @@ over = False
 doAI = False
 prevMove = None
 
-ai = Connector('gebWai.pl')
+ai = Connector('2048Ai.pl')
 boardList = list()
 boardList.append(board.board)
 boardNum = 0

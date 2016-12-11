@@ -33,7 +33,4 @@ class Connector:
 
     def aiMove(self, board, depth):
         self.setBoard(board)
-        if self.file == 'Peradon.pl':
-            print(list(self.prolog.query('solve(' +  '[0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0]' + ',' + '1' + ', Avg, Action)')))
-        elif self.file == 'gebWai.pl':
-            return list( self.prolog.query('aigame(' + str(self.board) + ',' + str(depth) + ',Move)'))
+        return list( self.prolog.query('aigame(' + str(self.board) + ',' + str(depth) + ',Move)'))

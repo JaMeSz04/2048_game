@@ -1,6 +1,5 @@
 import random
 import copy
-import itertools
 import math
 
 class Board:
@@ -9,8 +8,8 @@ class Board:
                        [0,0,0,0],
                        [0,0,0,0],
                        [0,0,0,0] ]
-        startRow = random.choice([0, 1, 2, 3])
-        startColumn = random.choice([0, 1, 2, 3])
+        startRow = random.choice([x for x in range(3)])
+        startColumn = random.choice([x for x in range(3)])
         self.board[startRow][startColumn] = 2
         self.score = 0
         self.isChange = False
@@ -271,9 +270,6 @@ class Board:
                 return True
         return False
 
-
-
-
     def getPredictAll(self,board):
         allMove = ['up', 'down', 'left', 'right']
         return [self.getPredictMoveOf(i,board) for i in allMove]
@@ -392,9 +388,6 @@ class Board:
 
         return val / 5
 
-
-
-
     def numMinCorner(self,board):
         num = 0
         maximum = 0
@@ -412,9 +405,6 @@ class Board:
         if board[len(board) - 1][len(board) - 1] != maximum:
             num += maximum - board[len(board) -1 ][len(board) - 1]
         return num / 100
-
-
-
 
     def scoreClose(self,board):
         num = 0
